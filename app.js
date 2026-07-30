@@ -21,6 +21,33 @@ const modeLabels = {
   software: "⌘ Consultor de software"
 };
 
+const KNOWLEDGE_BASE = [
+  {
+    terms: ["jurassic park", "jurassic", "dinossauro", "dinossauri"],
+    answer: `Em Jurassic Park (1993), os dinossauros foram criados combinando técnicas práticas e digitais — não foi “só CGI”.
+
+• Stan Winston e sua equipe construíram animatrônicos em tamanho real, incluindo o T. rex, a cabeça e o pescoço do braquiossauro e os velociraptores. Eles eram usados principalmente em planos próximos, interação física e cenas com chuva.
+• A Industrial Light & Magic (ILM), supervisionada por Dennis Muren, criou os dinossauros digitais para planos de corpo inteiro, corrida e movimentos impossíveis para os animatrônicos.
+• Phil Tippett inicialmente preparava animação em go-motion. Quando Spielberg aprovou os testes digitais da ILM, sua equipe passou a orientar a animação e desenvolveu o Dinosaur Input Device: um esqueleto articulado cujos movimentos eram transferidos para o computador.
+• Os artistas estudaram esqueletos, animais reais e biomecânica. Depois da animação, a ILM combinou iluminação, textura, sombras, motion blur, grão e composição para integrar os modelos à fotografia.
+• Michael Lantieri cuidou de muitos efeitos físicos no set, como chuva, lama, impactos, árvores e a interação do cenário com criaturas que seriam adicionadas depois.
+
+O resultado funciona porque cada técnica foi usada onde era mais convincente: animatrônicos para presença física e close; CGI para escala, velocidade e liberdade de movimento.`
+  },
+  {
+    terms: ["matrix", "bullet time"],
+    answer: `O “bullet time” de Matrix (1999) combinou uma sequência de câmeras fotográficas distribuídas ao redor do ator, câmeras de filme nas extremidades e reconstrução digital. As câmeras eram disparadas em sequência; os quadros intermediários eram tratados e o cenário podia ser substituído ou ampliado em computação gráfica. Isso criou uma câmera virtual que parece se mover em velocidade normal enquanto a ação está quase congelada.`
+  },
+  {
+    terms: ["avatar", "performance capture", "captura de performance"],
+    answer: `Avatar combinou performance capture, câmera virtual, animação facial e cenários digitais. Os atores atuavam com marcadores corporais e câmeras faciais; os dados serviam como base para a animação, que depois era refinada por artistas. James Cameron podia enquadrar personagens e ambientes digitais por meio de uma câmera virtual, como se estivesse filmando dentro de Pandora.`
+  },
+  {
+    terms: ["after effects", "blender", "nuke", "houdini", "davinci"],
+    answer: `Para escolher a ferramenta, pense na função: After Effects é forte em motion graphics e composição por camadas; Blender cobre modelagem, animação, tracking, simulação e render 3D; Nuke é especializado em composição nodal para VFX; Houdini se destaca em efeitos procedurais e simulações; DaVinci Resolve reúne edição, cor, áudio e composição no Fusion. Um pipeline pode combinar várias delas.`
+  }
+];
+
 const state = { mode: "video", generator: null, loading: false, generating: false, history: [] };
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -129,24 +156,36 @@ async function generate(text) {
   state.history.push({ role: "user", content: text });
   const pending = addMessage("assistant", "Consultando o manuscrito", true);
   try {
+    const knownAnswer = findKnowledge(text);
+    if (knownAnswer && !/crie|prompt|roteiro|transforme|melhore/i.test(text)) {
+      pending.p.textContent = knownAnswer;
+      pending.bubble.classList.remove("typing");
+      state.history.push({ role: "assistant", content: knownAnswer });
+      return;
+    }
     const generator = await loadModel();
     pending.p.textContent = "Criando sua resposta";
+    const retrievedContext = findKnowledge(text);
     const conversation = [
-      { role: "system", content: `${SYSTEM_PROMPT}\n\nModo atual: ${modePrompts[state.mode]}` },
+      { role: "system", content: `${SYSTEM_PROMPT}
+
+Modo atual: ${modePrompts[state.mode]}
+Responda à pergunta exatamente como ela foi feita. Perguntas históricas ou técnicas devem receber uma explicação factual, não um prompt. Não comece se apresentando. Não escreva palavras incompletas.
+${retrievedContext ? `\nContexto confiável para esta pergunta:\n${retrievedContext}` : ""}` },
       ...state.history.slice(-10)
     ];
     const output = await generator(conversation, {
-      max_new_tokens: 640,
-      do_sample: true,
-      temperature: 0.72,
-      top_p: 0.9,
-      repetition_penalty: 1.08
+      max_new_tokens: 512,
+      do_sample: false,
+      repetition_penalty: 1.12
     });
     const generated = output?.[0]?.generated_text;
     const answer = Array.isArray(generated)
       ? generated.at(-1)?.content
       : String(generated || "").replace(text, "").trim();
-    pending.p.textContent = answer || "Não consegui formar uma resposta. Tente reformular sua ideia.";
+    pending.p.textContent = isBadAnswer(answer)
+      ? "Esse modelo local compacto não conseguiu produzir uma resposta confiável para esta pergunta. Tente incluir o nome do filme, software ou efeito e mais contexto."
+      : answer;
     pending.bubble.classList.remove("typing");
     state.history.push({ role: "assistant", content: pending.p.textContent });
   } catch {
@@ -168,6 +207,18 @@ function clearChat() {
   state.history = [];
   messages.innerHTML = initialMessage;
   wirePromptButtons();
+}
+
+function findKnowledge(text) {
+  const normalized = text.toLocaleLowerCase("pt-BR");
+  return KNOWLEDGE_BASE.find((entry) => entry.terms.some((term) => normalized.includes(term)))?.answer || "";
+}
+
+function isBadAnswer(answer) {
+  if (!answer || answer.trim().length < 45) return true;
+  const words = answer.trim().split(/\s+/);
+  const malformed = words.filter((word) => word.length > 22 || /[^\p{L}\p{N}.,;:!?'"“”()/%+\-–—`*#]/u.test(word));
+  return malformed.length > Math.max(3, words.length * .14);
 }
 
 function wirePromptButtons() {
