@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d0a14">
+  <meta name="description" content="Assistente criativo local para prompts de imagem, vídeo e efeitos visuais, acelerado por WebGPU.">
+  <title>ManuscritoDaBruxos — IA criativa no seu navegador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <aside class="rail" aria-label="Navegação principal">
+    <a class="brand" href="#" aria-label="ManuscritoDaBruxos">
+      <img src="assets/Bruxos.png" alt="Logo Bruxos">
+    </a>
+    <nav>
+      <button class="rail-button active" data-view="chat" aria-label="Chat" title="Chat">
+        <span>⌂</span>
+      </button>
+      <button class="rail-button" data-view="about" aria-label="Sobre o Manuscrito" title="Sobre">
+        <span>?</span>
+      </button>
+    </nav>
+    <div class="rail-bottom">
+      <a href="README.md" aria-label="Documentação" title="Documentação">▤</a>
+      <a href="https://github.com/" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">⌘</a>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div class="model-chip">
+        <i></i>
+        <span>GEMMA · WEBGPU</span>
+      </div>
+      <button id="newChatTop" class="ghost-button">＋ Novo chat</button>
+    </header>
+
+    <section id="chatView" class="view">
+      <div class="hero">
+        <div class="logo-wrap">
+          <div class="orb orb-one"></div>
+          <div class="orb orb-two"></div>
+          <img src="assets/Bruxos.png" alt="" aria-hidden="true">
+        </div>
+        <p class="eyebrow">IA CRIATIVA · 100% NO SEU DISPOSITIVO</p>
+        <h1>Manuscrito<span>DaBruxos</span></h1>
+        <div class="divider"><b>✦</b></div>
+        <p class="subtitle">Seu grimório para transformar ideias em prompts de imagem, vídeo e efeitos visuais.</p>
+      </div>
+
+      <section class="workspace" aria-label="Assistente de prompts">
+        <aside class="toolbox">
+          <div>
+            <p class="section-label">MODO CRIATIVO</p>
+            <div class="mode-grid" role="group" aria-label="Modo criativo">
+              <button class="mode active" data-mode="video"><span>▶</span><b>Vídeo</b></button>
+              <button class="mode" data-mode="image"><span>◇</span><b>Imagem</b></button>
+              <button class="mode" data-mode="vfx"><span>✦</span><b>VFX</b></button>
+              <button class="mode" data-mode="software"><span>⌘</span><b>Software</b></button>
+            </div>
+          </div>
+
+          <div class="quick-block">
+            <p class="section-label">ATALHOS MÁGICOS</p>
+            <button class="quick" data-prompt="Crie um prompt cinematográfico completo para um vídeo, com câmera, iluminação, movimento e atmosfera.">Cena cinematográfica <span>↗</span></button>
+            <button class="quick" data-prompt="Transforme minha ideia em um prompt de imagem com composição, lente, luz, textura e estilo visual.">Imagem impactante <span>↗</span></button>
+            <button class="quick" data-prompt="Monte um plano de efeitos visuais para esta cena, incluindo técnica, tracking, composição e finalização.">Plano de VFX <span>↗</span></button>
+            <button class="quick" data-prompt="Compare as melhores ferramentas e o workflow ideal para executar este projeto audiovisual.">Escolher ferramentas <span>↗</span></button>
+          </div>
+
+          <div class="privacy-note">
+            <span>⌁</span>
+            <p><b>Privado por natureza</b><br>Suas ideias não saem deste navegador.</p>
+          </div>
+        </aside>
+
+        <div class="chat-card">
+          <div class="chat-head">
+            <div class="assistant-id">
+              <div class="mini-logo"><img src="assets/Bruxos.png" alt=""></div>
+              <div><b>Manuscrito</b><span id="modelStatus">Modelo não carregado</span></div>
+            </div>
+            <div class="chat-actions">
+              <button id="clearChat" title="Limpar conversa" aria-label="Limpar conversa">⌫</button>
+              <button id="loadModel" class="load-button">Carregar modelo</button>
+            </div>
+          </div>
+
+          <div id="runtimeNotice" class="runtime-notice hidden" role="status"></div>
+          <div id="progressPanel" class="progress-panel hidden" aria-live="polite">
+            <div class="progress-copy"><span id="progressText">Preparando o grimório…</span><b id="progressValue">0%</b></div>
+            <div class="progress-track"><i id="progressBar"></i></div>
+            <small>O primeiro carregamento baixa os pesos do Gemma. Depois, eles ficam no cache do navegador.</small>
+          </div>
+
+          <div id="messages" class="messages" aria-live="polite">
+            <article class="message assistant">
+              <div class="avatar">✦</div>
+              <div class="bubble">
+                <p>Olá! Sou o <strong>ManuscritoDaBruxos</strong>. Traga uma ideia, uma cena ou um problema técnico — eu ajudo a dar forma, linguagem visual e um workflow possível.</p>
+                <div class="suggestions">
+                  <button data-prompt="Quero criar uma cena de fantasia sombria em uma floresta, para um vídeo de 8 segundos.">“Uma floresta de fantasia sombria…”</button>
+                  <button data-prompt="Como criar um portal mágico com partículas no After Effects e Blender?">“Como faço um portal mágico?”</button>
+                  <button data-prompt="Melhore este prompt para imagem: uma bruxa em um laboratório futurista.">“Melhore meu prompt de imagem”</button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <form id="chatForm" class="composer">
+            <label for="promptInput" class="sr-only">Digite sua mensagem</label>
+            <textarea id="promptInput" rows="1" placeholder="Descreva sua ideia, cena ou dúvida sobre VFX…" maxlength="4000"></textarea>
+            <div class="composer-bottom">
+              <span id="modeBadge">▶ Prompt de vídeo</span>
+              <div>
+                <small><kbd>Enter</kbd> enviar</small>
+                <button id="sendButton" type="submit" aria-label="Enviar mensagem">↑</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <div class="features">
+        <div><span>✧</span><p><b>Direção criativa</b><small>Câmera, luz, ritmo e atmosfera</small></p></div>
+        <div><span>⬡</span><p><b>Conhecimento de VFX</b><small>Composição, 3D e pós-produção</small></p></div>
+        <div><span>⌁</span><p><b>Execução local</b><small>Gemma acelerado por WebGPU</small></p></div>
+      </div>
+    </section>
+
+    <section id="aboutView" class="view about-view hidden">
+      <div class="about-card">
+        <img src="assets/Bruxos.png" alt="Bruxos">
+        <p class="eyebrow">SOBRE O PROJETO</p>
+        <h2>Uma inteligência criativa que vive no seu navegador.</h2>
+        <p>O ManuscritoDaBruxos usa Gemma com aceleração WebGPU para conversar sobre direção de arte, geração de imagens, vídeo, VFX, 3D, composição e ferramentas criativas. Nenhuma API ou conta é necessária.</p>
+        <button class="load-button" data-view="chat">Abrir o chat</button>
+      </div>
+    </section>
+
+    <footer>© 2026 Bruxos — Feito com magia, pixels e WebGPU.</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
