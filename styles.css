@@ -163,7 +163,7 @@ footer { padding:26px 20px 35px; text-align:center; color:#5f5967; font-size:9px
 .idea-box textarea { width:100%; min-height:150px; padding:15px; resize:vertical; border:0; outline:0; color:#e8e5eb; background:none; font-size:13px; line-height:1.7; }
 .idea-box textarea::placeholder { color:#5e5965; }
 .idea-hint { display:block; padding:0 15px; color:#655f6d; font-size:8px; }
-.format-row { display:grid; grid-template-columns:repeat(3,1fr) 1.35fr; gap:10px; margin-top:14px; }
+.format-row { display:grid; grid-template-columns:repeat(4,1fr) 1.35fr; gap:10px; margin-top:14px; }
 .format-row label { display:grid; gap:6px; color:#777181; font-size:8px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
 .format-row select { height:42px; padding:0 10px; border:1px solid var(--line); border-radius:9px; outline:0; color:#b9b4c0; background:#17141e; font-size:10px; text-transform:none; }
 #generateButton { align-self:end; height:42px; border:0; border-radius:9px; background:linear-gradient(135deg,var(--lime),#73b91d); color:#101605; font-size:11px; font-weight:800; cursor:pointer; box-shadow:0 6px 20px rgba(145,211,41,.12); }
@@ -203,7 +203,7 @@ footer { padding:26px 20px 35px; text-align:center; color:#5f5967; font-size:9px
   .mode-grid { grid-template-columns:repeat(4,1fr); }
   .quick-block,.privacy-note { display:none; }
   .messages { height:360px; }
-  .format-row { grid-template-columns:repeat(3,1fr); }
+  .format-row { grid-template-columns:repeat(2,1fr); }
   #generateButton { grid-column:1/-1; }
 }
 @media (max-width: 560px) {

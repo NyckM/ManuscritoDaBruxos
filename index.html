@@ -56,6 +56,13 @@
           </label>
 
           <div class="format-row" aria-label="Configuração do vídeo">
+            <label>Destino
+              <select id="platform">
+                <option value="seedance" selected>Seedance</option>
+                <option value="bernini">Bernini</option>
+                <option value="ltx">LTX-2.3</option>
+              </select>
+            </label>
             <label>Duração
               <select id="duration">
                 <option value="5">5 segundos</option>
@@ -86,7 +93,7 @@
         <div class="generator-head">
           <div>
             <span class="step-number purple">02</span>
-            <div><b>Prompt cinematográfico</b><small>Estruturado para Seedance, Bernini e LTX-2.3.</small></div>
+            <div><b>Prompt cinematográfico</b><small id="resultSubtitle">Estruturado para Seedance.</small></div>
           </div>
           <div class="result-actions">
             <button id="copyButton">□ Copiar</button>
@@ -95,11 +102,11 @@
         </div>
         <div id="promptOutput" class="prompt-output" tabindex="0"></div>
         <div class="prompt-anatomy">
-          <span>✓ Estrutura e duração</span>
+          <span id="methodBadge">✓ Método Seedance</span>
           <span>✓ Sujeito e ambiente</span>
           <span>✓ Ação e câmera</span>
           <span>✓ Luz e textura</span>
-          <span>✓ Áudio e continuidade</span>
+          <span>✓ Continuidade</span>
         </div>
       </section>
 

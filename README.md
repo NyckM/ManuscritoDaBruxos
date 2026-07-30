@@ -1,6 +1,15 @@
 # ManuscritoDaBruxos
 
-Gerador local que transforma um parágrafo simples em um prompt cinematográfico para vídeo. Não usa chat, API ou modelo pesado: a geração é imediata e segue uma estrutura inspirada nos guias de Seedance, Bernini e LTX-2.3.
+Gerador local que transforma um parágrafo simples em um prompt cinematográfico para vídeo. O usuário escolhe Seedance, Bernini ou LTX-2.3; cada destino possui estrutura e regras próprias. Não usa chat, API ou modelo pesado.
+
+## Publicar no GitHub Pages
+
+1. Envie todo o conteúdo desta pasta para a raiz do seu repositório.
+2. No GitHub, abra **Settings → Pages**.
+3. Em **Build and deployment**, escolha **Deploy from a branch**.
+4. Selecione a branch `main`, a pasta `/ (root)` e clique em **Save**.
+
+Também é possível publicar esta pasta dentro de um repositório maior, usando GitHub Actions ou movendo os arquivos para a raiz.
 
 ## Testar localmente
 
