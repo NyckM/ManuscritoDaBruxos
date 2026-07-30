@@ -1,4 +1,4 @@
-const MODEL_ID = "onnx-community/gemma-3-1b-it-ONNX";
+const MODEL_ID = "onnx-community/gemma-3-270m-it-ONNX";
 const SYSTEM_PROMPT = `Você é ManuscritoDaBruxos, um diretor criativo e supervisor de efeitos visuais brasileiro.
 Você ajuda a construir prompts profissionais para geração de imagens e vídeos, conversa sobre VFX, composição,
 3D, edição, color grading e ferramentas como Blender, After Effects, DaVinci Resolve, Nuke, Houdini, ComfyUI,
@@ -86,7 +86,10 @@ async function loadModel() {
     env.allowLocalModels = false;
     state.generator = await pipeline("text-generation", MODEL_ID, {
       device: "webgpu",
-      dtype: "q4",
+      // O modelo Gemma 3 270M WebGPU publicado pela comunidade ONNX usa fp32.
+      // Solicitar q4 faz alguns navegadores baixarem os arquivos e falharem ao
+      // criar a sessão, retornando apenas um código numérico.
+      dtype: "fp32",
       progress_callback: (data) => {
         const value = data.progress ?? (data.loaded && data.total ? data.loaded / data.total * 100 : 3);
         const label = data.status === "ready" ? "Finalizando…" : (data.file ? `Baixando ${data.file.split("/").pop()}` : "Carregando Gemma…");
@@ -100,14 +103,18 @@ async function loadModel() {
     button.textContent = "Modelo pronto";
     return state.generator;
   } catch (error) {
-    console.error(error);
+    console.error("Falha ao carregar Gemma:", error);
     state.generator = null;
     $("#progressPanel").classList.add("hidden");
-    setStatus("WebGPU indisponível");
-    showNotice(error.message || "Não foi possível carregar o modelo.", "error");
+    const rawError = error?.message || error?.name || String(error || "");
+    const friendlyError = /memory|allocation|buffer|RangeError|^[0-9]+$/i.test(rawError)
+      ? "A GPU ficou sem memória durante a inicialização. Feche outras abas e programas que usam a GPU e tente novamente."
+      : rawError || "Não foi possível carregar o modelo.";
+    setStatus("Falha ao carregar");
+    showNotice(friendlyError, "error");
     button.disabled = false;
     button.textContent = "Tentar novamente";
-    addMessage("assistant", `${error.message || "Não foi possível carregar o modelo"} Use Chrome ou Edge atualizado, abra a página por HTTPS e confirme que a aceleração de hardware está ativa.`);
+    addMessage("assistant", `O modelo não carregou: ${friendlyError}`);
     throw error;
   } finally {
     state.loading = false;

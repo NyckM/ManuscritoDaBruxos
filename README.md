@@ -1,6 +1,6 @@
 # ManuscritoDaBruxos
 
-Assistente criativo local para prompts de imagem, vídeo, VFX e ferramentas audiovisuais. O site usa **Gemma 3 1B IT**, via Transformers.js e WebGPU, diretamente no navegador.
+Assistente criativo local para prompts de imagem, vídeo, VFX e ferramentas audiovisuais. O site usa **Gemma 3 270M IT**, via Transformers.js e WebGPU, diretamente no navegador. Essa variante foi escolhida por ser compatível com uma faixa maior de GPUs.
 
 ## Publicar no GitHub Pages
 
@@ -39,4 +39,4 @@ Depois do download inicial do modelo, a inferência e as conversas acontecem no 
 
 ## Créditos
 
-Inspirado no experimento [Gemma 4 WebGPU Kernels](https://huggingface.co/spaces/webml-community/gemma-4-webgpu-kernels), do webml-community. Modelo compatível usado nesta versão: [onnx-community/gemma-3-1b-it-ONNX](https://huggingface.co/onnx-community/gemma-3-1b-it-ONNX).
+Inspirado no experimento [Gemma 4 WebGPU Kernels](https://huggingface.co/spaces/webml-community/gemma-4-webgpu-kernels), do webml-community. Modelo compatível usado nesta versão: [onnx-community/gemma-3-270m-it-ONNX](https://huggingface.co/onnx-community/gemma-3-270m-it-ONNX).
